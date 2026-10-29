@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>СТО у друзей · Telegram-бот для записи</title>
+<meta name="description" content="СТО у друзей, Новосибирск. Кузовной ремонт, малярка, замена агрегатов, геометрия. Демо Telegram-бота: заявка с фото, запись на осмотр и статус ремонта.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Rubik:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#d8d6d0; --bg2:#cbc8c1; --ink:#141414; --soft:#5b5a56; --line:#b3b0a8;
+  --or:#ff6a13; --tape:#e9d9a6; --dark:#1b1c1c;
+  --head:"Unbounded",Impact,sans-serif; --sans:"Rubik",system-ui,-apple-system,Segoe UI,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip;background-image:radial-gradient(rgba(0,0,0,.05) 1px,transparent 1px);background-size:5px 5px}
+[hidden]{display:none!important}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--head);font-weight:800;margin:0;line-height:1.02;text-transform:uppercase}
+.tape{display:inline-block;background:var(--tape);font:700 13px var(--mono);text-transform:uppercase;padding:6px 14px;transform:rotate(-2deg);box-shadow:0 2px 0 rgba(0,0,0,.08);clip-path:polygon(2% 0,98% 4%,100% 50%,97% 100%,1% 96%,0 50%)}
+.or{color:var(--or)}
+.btn{display:inline-flex;align-items:center;gap:10px;border:2px solid var(--ink);cursor:pointer;font:700 15px var(--sans);text-transform:uppercase;letter-spacing:.04em;padding:14px 22px;background:var(--or);color:var(--ink);text-decoration:none;box-shadow:4px 4px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.btn:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.btn.ghost{background:transparent}
+
+header{position:fixed;inset:0 0 auto;z-index:50;padding-top:env(safe-area-inset-top,0px);transition:background .3s}
+header.solid{background:rgba(216,214,208,.94);box-shadow:0 2px 0 var(--ink)}
+.nav{display:flex;justify-content:space-between;align-items:center;height:66px}
+.logo{font:800 17px var(--head);text-decoration:none;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.logo i{display:grid;place-items:center;width:34px;height:34px;background:var(--ink);color:var(--or);font-style:normal;font-size:18px}
+.links{display:flex;gap:26px;font:500 14px var(--mono);text-transform:uppercase}
+.links a{text-decoration:none}.links a:hover{color:var(--or)}
+.nav .btn{padding:9px 14px;font-size:13px;box-shadow:3px 3px 0 var(--ink)}
+
+/* hero */
+.hero{padding:110px 0 70px;position:relative}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(40px,6.4vw,88px);margin:18px 0 18px}
+.hero h1 span{display:inline-block;background:var(--ink);color:var(--or);padding:0 .15em;transform:rotate(-1.5deg)}
+.hero p{max-width:500px;font-size:18px;margin:0 0 26px;color:#2b2b29}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.what{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px}
+.what span{font:500 13px var(--mono);border:1.5px solid var(--ink);padding:6px 10px;text-transform:uppercase}
+.try{font:700 14px var(--mono);text-transform:uppercase;text-align:center;margin-bottom:14px}
+.try b{color:var(--or)}
+.arrow{display:block;margin:0 auto 6px;width:60px}
+
+/* phone (interactive) */
+.phone{background:#0d0d0d;border-radius:40px;padding:11px;max-width:340px;margin:0 auto;box-shadow:10px 10px 0 var(--ink);border:2px solid var(--ink)}
+.screen{background:#0e1621;border-radius:30px;height:560px;display:flex;flex-direction:column;overflow:hidden;color:#e8edf2;font-size:13.5px}
+.tgh{display:flex;align-items:center;gap:10px;padding:12px 14px 10px;border-bottom:1px solid #1f2b38;background:#17212b;flex:none}
+.tgh .av{width:36px;height:36px;border-radius:50%;background:var(--or);color:#111;display:grid;place-items:center;font:800 13px var(--head);flex:none}
+.tgh b{display:block;font-weight:500}.tgh small{color:#7f91a4}
+.tgh .rs{all:unset;margin-left:auto;cursor:pointer;color:#7f91a4;font-size:12px}
+.msgs{flex:1;overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:7px;scrollbar-width:none}
+.msgs::-webkit-scrollbar{display:none}
+.bub{background:#182533;border-radius:16px 16px 16px 4px;padding:9px 11px;max-width:90%;line-height:1.45;animation:in .3s ease;align-self:flex-start}
+.bub.me{align-self:flex-end;background:#2b5278;border-radius:16px 16px 4px 16px}
+.bub time{display:block;text-align:right;font-size:10.5px;color:#6d8296;margin-top:2px}
+.bub .ph{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:2px 0 4px}
+.bub .ph i{aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,#3b4a57,#1b252e);display:grid;place-items:center;font-style:normal;font-size:22px}
+.bub .prog{height:6px;background:#24384c;border-radius:9px;margin:8px 0 2px;overflow:hidden}
+.bub .prog i{display:block;height:100%;background:var(--or)}
+.sep{align-self:center;font-size:11px;color:#9fb0c2;background:#1a2733;border-radius:999px;padding:3px 10px}
+.typing{color:#7f91a4;font-size:12px;padding-left:4px}
+.kb{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px 8px 10px;background:#0e1621;flex:none}
+.kb button{all:unset;cursor:pointer;text-align:center;background:#24384c;border-radius:9px;padding:9px 4px;font-size:12.5px;color:#cfe3f7;transition:background .15s}
+.kb button:hover{background:#2f4a63}
+.kb button.w{grid-column:1/-1}
+.kb button.hl{background:var(--or);color:#111;font-weight:700}
+.input{display:flex;align-items:center;gap:8px;padding:8px 12px 12px;background:#17212b;flex:none;color:#6d8296;font-size:13px}
+.input span{flex:1;background:#0e1621;border-radius:18px;padding:8px 12px}
+.ph-cap{text-align:center;color:var(--soft);font-size:13px;margin:16px auto 0;max-width:340px}
+.vtabs{display:flex;max-width:340px;margin:0 auto 14px;border:2px solid var(--ink)}
+.vtabs button{flex:1;border:0;background:transparent;padding:9px;font:700 12px var(--mono);text-transform:uppercase;cursor:pointer;color:var(--ink)}
+.vtabs button.on{background:var(--ink);color:var(--or)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+section.sec{padding:90px 0;position:relative}
+.head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+.head h2{font-size:clamp(32px,4.6vw,62px)}
+.head p{max-width:420px;color:var(--soft);margin:0}
+
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.f{background:#e9e7e2;border:2px solid var(--ink);padding:24px;position:relative;box-shadow:5px 5px 0 var(--ink)}
+.f .n{font:700 13px var(--mono);color:var(--or)}
+.f h3{font-size:19px;margin:8px 0 10px;line-height:1.15}
+.f p{margin:0;color:#3a3a37;font-size:15px}
+.f .tape{position:absolute;top:-14px;right:16px}
+
+/* status strip */
+.dark{background:var(--dark);color:#eee;border-block:2px solid var(--ink)}
+.dark .head p{color:#a3a29d}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:s}
+.fs{border-top:3px solid #3a3b3b;padding:18px 16px 0 0;position:relative}
+.fs.on{border-color:var(--or)}
+.fs b{display:block;font:800 16px var(--head);text-transform:uppercase;margin-bottom:6px}
+.fs span{color:#a3a29d;font-size:14px}
+.fs:before{counter-increment:s;content:"0" counter(s);font:700 13px var(--mono);color:var(--or);display:block;margin-bottom:6px}
+.play{margin-top:30px}
+.play .btn{box-shadow:4px 4px 0 #000}
+
+/* services */
+.svc{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--ink);background:#e9e7e2}
+.sv{padding:24px 20px;border-right:2px solid var(--ink)}
+.sv:last-child{border-right:0}
+.sv h3{font-size:17px;margin-bottom:8px;line-height:1.15}
+.sv p{margin:0 0 14px;color:#3a3a37;font-size:14px}
+.sv b{font:700 15px var(--mono)}
+.pnote{margin-top:12px;color:var(--soft);font-size:13px}
+
+.foot{background:var(--or);border-top:2px solid var(--ink);padding:80px 0 30px}
+.foot h2{font-size:clamp(36px,6vw,84px)}
+.ct{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:36px}
+.ct a,.ct div{display:block;background:var(--ink);color:#eee;padding:18px 20px;text-decoration:none;border:2px solid var(--ink)}
+.ct small{display:block;color:#a3a29d;font:500 12px var(--mono);text-transform:uppercase;margin-bottom:4px}
+.ct b{font:700 18px var(--sans)}
+.ct a:hover b{color:var(--or)}
+.copy{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:46px;font-size:13px}
+
+@media (max-width:960px){
+  .links{display:none}
+  .hero .wrap{grid-template-columns:1fr}
+  .feat{grid-template-columns:1fr 1fr}
+  .flow{grid-template-columns:1fr 1fr}
+  .svc{grid-template-columns:1fr 1fr}
+  .sv:nth-child(2){border-right:0}
+  .sv:nth-child(-n+2){border-bottom:2px solid var(--ink)}
+  .ct{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  section.sec{padding:66px 0}
+  .feat,.flow,.svc{grid-template-columns:1fr}
+  .sv{border-right:0;border-bottom:2px solid var(--ink)}
+  .sv:last-child{border-bottom:0}
+  .screen{height:520px}
+  .phone{box-shadow:6px 6px 0 var(--ink)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header id="hdr"><div class="wrap nav">
+  <a class="logo" href="#top"><i>🔧</i>СТО у друзей</a>
+  <nav class="links"><a href="#bot">Бот</a><a href="#status">Статусы</a><a href="#svc">Услуги</a><a href="#contacts">Контакты</a></nav>
+  <a class="btn" href="#bot">Попробовать бота</a>
+</div></header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="tape">Новосибирск · кузовной ремонт</span>
+      <h1>Заявки в <span>Telegram</span>, пока вы под машиной</h1>
+      <p>Бот сам спрашивает марку, что случилось и фото повреждения, записывает на осмотр и пишет клиенту, когда машина готова. Вам остаётся нажать одну кнопку.</p>
+      <div class="cta"><a class="btn" href="#bot">Нажать «Старт» →</a><a class="btn ghost" href="#status">Что видит клиент</a></div>
+      <div class="what"><span>Замена агрегатов</span><span>Кузовной ремонт</span><span>Геометрия</span><span>Малярка</span></div>
+    </div>
+    <div id="bot">
+      <div class="try">Это живой пример, <b>понажимайте кнопки</b></div>
+      <div class="vtabs"><button class="on" data-v="c">Клиент пишет боту</button><button data-v="m">Илье приходит</button></div>
+      <div class="phone"><div class="screen">
+        <div class="tgh"><div class="av" id="av">СТО</div><div><b id="tt">СТО у друзей · бот</b><small id="ts">бот</small></div><button class="rs" id="rs">↻ заново</button></div>
+        <div class="msgs" id="msgs"></div>
+        <div class="kb" id="kb"></div>
+        <div class="input"><span>Сообщение</span>🎤</div>
+      </div></div>
+      <p class="ph-cap" id="cap">Клиент нашёл вас в Instagram, перешёл по ссылке в шапке и нажал «Старт».</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="why">
+  <div class="wrap">
+    <div class="head"><h2>Что умеет <span class="or">бот</span></h2><p>Работает в обычном Telegram, клиенту не нужно ничего скачивать.</p></div>
+    <div class="feat">
+      <div class="f"><span class="tape">без звонков</span><div class="n">01</div><h3>Собирает заявку целиком</h3><p>Марка, что случилось, фото повреждения и номер телефона. Не нужно перезванивать и переспрашивать.</p></div>
+      <div class="f"><div class="n">02</div><h3>Записывает на осмотр</h3><p>Показывает только свободное время. Накануне сам напоминает клиенту, чтобы не забыл приехать.</p></div>
+      <div class="f"><div class="n">03</div><h3>Статус ремонта</h3><p>«Разобрали», «в малярке», «готова». Клиент видит, где его машина, и не звонит каждый день.</p></div>
+      <div class="f"><div class="n">04</div><h3>Согласование допработ</h3><p>Нашли ещё проблему: фото и цена клиенту, он нажимает «Да» или «Нет». Всё сохраняется в переписке.</p></div>
+      <div class="f"><div class="n">05</div><h3>Все заявки в одном чате</h3><p>Вам приходит карточка с кнопками «Принять», «Перенести», «Готова». Удобно с телефона прямо в боксе.</p></div>
+      <div class="f"><span class="tape">повторные</span><div class="n">06</div><h3>Зовёт клиентов вернуться</h3><p>Через полгода бот напомнит о сход-развале или замене масла. Клиент возвращается к вам, а не к соседям.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec dark" id="status">
+  <div class="wrap">
+    <div class="head"><h2>Где моя <span class="or">машина?</span></h2><p>Клиент получает эти сообщения сам, вы нажимаете одну кнопку в своём чате.</p></div>
+    <div class="flow" id="flow">
+      <div class="fs"><b>Приняли</b><span>Машина в боксе, осмотр сделан</span></div>
+      <div class="fs"><b>Разобрали</b><span>Фото скрытых повреждений клиенту</span></div>
+      <div class="fs"><b>Малярка</b><span>Рихтовка, грунт, покраска</span></div>
+      <div class="fs"><b>Сборка</b><span>Собираем, проверяем геометрию</span></div>
+      <div class="fs"><b>Готова</b><span>Фото «после» и итоговая сумма</span></div>
+    </div>
+    <div class="play"><a class="btn" href="#bot" id="playSt">Показать на телефоне →</a></div>
+  </div>
+</section>
+
+<section class="sec" id="svc">
+  <div class="wrap">
+    <div class="head"><h2>Услуги <span class="or">СТО</span></h2><p>Эти же кнопки видит клиент в боте. Можно добавить и простой сайт, куда ведёт ссылка из Instagram.</p></div>
+    <div class="svc">
+      <div class="sv"><h3>Кузовной ремонт</h3><p>Рихтовка, замена элементов, восстановление после ДТП</p><b>по осмотру</b></div>
+      <div class="sv"><h3>Малярка</h3><p>Покраска элемента или всей машины, подбор цвета</p><b>от 12 000 ₽ / эл.</b></div>
+      <div class="sv"><h3>Замена агрегатов</h3><p>ДВС, КПП, редукторы, контрактные агрегаты</p><b>по осмотру</b></div>
+      <div class="sv"><h3>Геометрия</h3><p>Вытягиваем геометрию кузова на стапеле</p><b>от 8 000 ₽</b></div>
+    </div>
+    <p class="pnote">*цены примерные, для демо</p>
+  </div>
+</section>
+
+<section class="foot" id="contacts">
+  <div class="wrap">
+    <h2>Новосибирск,<br>пишите Илье</h2>
+    <div class="ct">
+      <a href="https://t.me/Hotblock92" target="_blank" rel="noopener"><small>Telegram</small><b>@Hotblock92</b></a>
+      <a href="https://instagram.com/cto_y_druzey" target="_blank" rel="noopener"><small>Instagram</small><b>@cto_y_druzey</b></a>
+      <div><small>Что делаем</small><b>Кузов, агрегаты, геометрия</b></div>
+    </div>
+    <div class="copy"><span>© 2026 СТО у друзей · демо Telegram-бота</span><span>Бот и сайт: <a href="https://whysafe.ru" target="_blank" rel="noopener">whysafe.ru</a></span></div>
+  </div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+addEventListener('scroll',()=>$('#hdr').classList.toggle('solid',scrollY>30),{passive:true});
+const WD=['вс','пн','вт','ср','чт','пт','сб'],MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const today=new Date();today.setHours(0,0,0,0);
+const dd=o=>{const d=new Date(today);d.setDate(d.getDate()+o);return d};
+const fmt=d=>d.getDate()+' '+MON[d.getMonth()]+', '+WD[d.getDay()];
+const now=()=>{const n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')};
+const msgs=$('#msgs'),kb=$('#kb');let fid=0;const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function add(h,c){const b=document.createElement('div');b.className=c;b.innerHTML=h;msgs.appendChild(b);msgs.scrollTop=msgs.scrollHeight;return b}
+async function bot(id,h,d=350){await wait(d);if(id!==fid)return false;const t=add('печатает…','typing');await wait(650);t.remove();if(id!==fid)return false;add(h+`<time>${now()}</time>`,'bub');return true}
+function me(h){add(h+`<time>${now()} ✓✓</time>`,'bub me')}
+function keys(arr){kb.innerHTML='';arr.forEach(k=>{const b=document.createElement('button');b.textContent=k.t;if(k.w)b.className='w';if(k.hl)b.classList.add('hl');b.onclick=()=>{kb.innerHTML='';k.f()};kb.appendChild(b)})}
+
+const A={};
+async function start(){const id=++fid;msgs.innerHTML='';kb.innerHTML='';setHead('c');Object.keys(A).forEach(k=>delete A[k]);
+ add('сегодня','sep');
+ keys([{t:'СТАРТ',w:1,hl:1,f:async()=>{me('/start');s1(id)}}])}
+async function s1(id){if(!await bot(id,'Привет! Это бот <b>СТО у друзей</b> 🔧<br>Новосибирск. Что случилось с машиной?'))return;
+ keys(['Кузовной ремонт','Покраска','Замена агрегата','Геометрия','ДТП, всё сразу'].map((t,i)=>({t,w:i===4,f:()=>{A.w=t;me(t);s2(id)}})))}
+async function s2(id){if(!await bot(id,'Понял. Какая машина?'))return;
+ keys(['Toyota','Subaru','Nissan','Lada','Mark II 😎','Другая'].map(t=>({t,f:()=>{A.car=t==='Mark II 😎'?'Toyota Mark II':t;me(t);s3(id)}})))}
+async function s3(id){if(!await bot(id,'Скиньте 1–3 фото повреждения, так мы сразу прикинем цену и время.'))return;
+ keys([{t:'📷 Отправить фото',f:()=>{A.ph=2;add(`<div class="ph"><i>🚗</i><i>💥</i></div><time>${now()} ✓✓</time>`,'bub me');s4(id)}},{t:'Без фото',f:()=>{A.ph=0;me('Без фото');s4(id)}}])}
+async function s4(id){if(!await bot(id,(A.ph?'Фото получили, мастер посмотрит. ':'')+'Когда удобно приехать на осмотр? Осмотр бесплатный, 15 минут.'))return;
+ const ds=[1,2,3,5].map(dd);keys(ds.map(d=>({t:fmt(d),f:()=>{A.d=d;me(fmt(d));s5(id)}})))}
+async function s5(id){if(!await bot(id,'Свободное время:'))return;
+ const sl=['10:00','12:30','15:00','17:30'].filter((_,i)=>(A.d.getDate()+i)%4!==0);keys(sl.map(t=>({t,f:()=>{A.t=t;me(t);s6(id)}})))}
+async function s6(id){if(!await bot(id,'Последнее: оставьте номер, чтобы мастер мог позвонить, если что.'))return;
+ keys([{t:'📱 Поделиться номером',w:1,hl:1,f:()=>{me('📱 +7 9•• ••• 23 45');s7(id)}}])}
+async function s7(id){if(!await bot(id,`✅ <b>Записали на осмотр</b><br>${A.car} · ${A.w.toLowerCase()}<br>${fmt(A.d)}, ${A.t}<br>Фото: ${A.ph?A.ph+' шт.':'нет'}<br><br>Напомню накануне. Если планы изменятся, нажмите «Перенести».`))return;
+ keys([{t:'Перенести',f:()=>{me('Перенести');s4(id)}},{t:'Отлично 👍',f:()=>{me('Отлично 👍');s8(id)}},{t:'Посмотреть, что придёт дальше →',w:1,hl:1,f:()=>s8(id)}])}
+async function s8(id){const p=new Date(A.d);p.setDate(p.getDate()-1);add(`${p.getDate()} ${MON[p.getMonth()]}`,'sep');
+ if(!await bot(id,`Напоминаю: завтра в ${A.t} ждём вас на осмотр 🔧`,600))return;
+ add(fmt(A.d),'sep');
+ if(!await bot(id,`🚗 Машина принята в работу<div class="prog"><i style="width:20%"></i></div>Приняли → <b>разбираем</b> → малярка → сборка → готово`,700))return;
+ if(!await bot(id,`⚠️ При разборке нашли: погнут усилитель бампера.<div class="ph"><i>🔩</i><i>📏</i></div>Замена +4 500 ₽. Делаем?`,900))return;
+ keys([{t:'Да, делайте',f:()=>{me('Да, делайте');s9(id,1)}},{t:'Нет, только основное',f:()=>{me('Нет, только основное');s9(id,0)}}])}
+async function s9(id,y){if(!await bot(id,y?'Принято, добавили в работу.':'Хорошо, делаем только основное.'))return;
+ if(!await bot(id,`🎨 Машина в малярке<div class="prog"><i style="width:60%"></i></div>Грунт высох, завтра покраска`,1000))return;
+ if(!await bot(id,`✅ <b>Машина готова!</b><div class="ph"><i>✨</i><i>🚘</i></div>Итого: ${y?'36 500':'32 000'} ₽<br>Забрать можно сегодня до 20:00`,1100))return;
+ keys([{t:'Еду!',f:()=>{me('Еду!');s10(id)}},{t:'↻ Пройти заново',f:start}])}
+async function s10(id){add('через 6 месяцев','sep');if(!await bot(id,'Привет! Полгода после ремонта. Заедете на бесплатную проверку геометрии и кузова?',700))return;keys([{t:'Записаться',f:()=>{me('Записаться');s4(id)}},{t:'↻ Пройти заново',f:start}])}
+
+/* master view */
+async function master(){const id=++fid;msgs.innerHTML='';kb.innerHTML='';setHead('m');
+ const car=A.car||'Subaru Forester',w=(A.w||'Кузовной ремонт').toLowerCase(),d=A.d||dd(2),t=A.t||'12:30';
+ add('сегодня','sep');
+ if(!await bot(id,`🆕 <b>Заявка на осмотр</b><br>🚗 ${car}<br>🔧 ${w}<br>📅 ${fmt(d)}, ${t}<br>📱 +7 9•• ••• 23 45<div class="ph"><i>🚗</i><i>💥</i></div>`,250))return;
+ keys([{t:'✓ Принять',f:async()=>{me('✓ Принять');if(!await bot(id,'Клиенту ушло подтверждение. Напоминание накануне отправится само.'))return;m2(id)}},{t:'Перенести',f:async()=>{me('Перенести');await bot(id,'Клиенту ушли 3 других свободных окна, он выберет сам.');m2(id)}}])}
+async function m2(id,again){if(id!==fid)return;if(!again)add('в день ремонта','sep');if(!await bot(id,`Сменить статус машины <b>${A.car||'Subaru Forester'}</b>:`,600))return;
+ keys([{t:'Разобрали',f:async()=>{me('Разобрали');await bot(id,'Клиент получил: «разбираем» и прогресс 40%');m2(id,1)}},{t:'Малярка',f:async()=>{me('Малярка');await bot(id,'Клиент получил: «в малярке» и прогресс 60%');m2(id,1)}},{t:'📷 Допработы (фото + цена)',w:1,f:async()=>{me('📷 Допработы +4 500 ₽');await bot(id,'Отправили клиенту на согласование. Ответ: <b>«Да, делайте»</b> ✅');m2(id,1)}},{t:'✅ Готова',w:1,hl:1,f:async()=>{me('✅ Готова, 36 500 ₽');await bot(id,'Клиент получил «машина готова» с фото и суммой. Через 6 месяцев бот сам позовёт его на проверку.');m3(id)}}])}
+async function m3(id){add('понедельник','sep');if(!await bot(id,'📊 <b>Неделя</b><br>Новых заявок: 9<br>Записались на осмотр: 7<br>В работе: 3 машины<br>Выдано: 4, на 118 000 ₽',600))return;keys([{t:'↻ Заново',w:1,f:master}])}
+
+function setHead(v){$('#tt').textContent=v==='m'?'Заявки · СТО у друзей':'СТО у друзей · бот';$('#ts').textContent=v==='m'?'только для Ильи':'бот';$('#av').textContent=v==='m'?'🔔':'СТО';$('#cap').textContent=v==='m'?'Так выглядит ваш рабочий чат: одна кнопка, и клиент получает статус.':'Клиент нашёл вас в Instagram, перешёл по ссылке в шапке и нажал «Старт».';$$('.vtabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+$$('.vtabs button').forEach(b=>b.onclick=()=>b.dataset.v==='m'?master():start());
+$('#rs').onclick=()=>$('.vtabs button.on').dataset.v==='m'?master():start();
+$('#playSt').onclick=()=>{if(!A.car){A.w='Кузовной ремонт';A.car='Subaru';A.ph=2;A.d=dd(2);A.t='12:30'}const id=++fid;msgs.innerHTML='';setHead('c');kb.innerHTML='';s8(id)};
+const fs=$$('.fs');let fi=0;setInterval(()=>{fs.forEach((f,i)=>f.classList.toggle('on',i<=fi));fi=(fi+1)%fs.length},900);
+start();
+</script>
+</body>
+</html>
